@@ -53,14 +53,14 @@ def check_for_environment_variables(bot_cli)->None:
         log.info("Put your discord bot token in a .env file in the root of this project")
         raise RuntimeError("Missing bot token in environment variables")
 
-    if PRIMARY_CHANNEL_ID:
+    if not PRIMARY_CHANNEL_ID:
         log.err("PRIMARY_CHANNEL_ID Environment variable not found")
         log.info("Put your primary channel ID in a .env file in the root of this project; .env is in gitignore because it is private and unique per bot made")
         log.info('Enable Developer Mode in Discord if not done so already and then right click the channel to output to and select context menu option: "Copy Channel ID"')
         log.info('The Project Zomboid Server ".ini" file needs a channel ID as well')
         raise RuntimeError("Channel ID 1 in environment variables")
 
-    if SECONDARY_CHANNEL_ID:
+    if not SECONDARY_CHANNEL_ID:
         log.err("SECONDARY_CHANNEL_ID Environment variable not found")
         log.info("Put your secondary channel ID in a .env file in the root of this project; .env is in gitignore because it is private and unique per bot made")
         log.info('Enable Developer Mode in Discord if not done so already and then right click the channel to output to and select context menu option: "Copy Channel ID"')
