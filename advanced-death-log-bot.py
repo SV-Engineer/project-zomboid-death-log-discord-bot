@@ -24,8 +24,10 @@ from Log import Log
 
 # Bot token and channel IDs
 DISCORD_TOKEN                             = os.getenv("DISCORD_BOT_TOKEN")
-PRIMARY_CHANNEL_ID                        = int(os.getenv("PRIMARY_CHANNEL_ID"))  # For the death cause
-SECONDARY_CHANNEL_ID                      = int(os.getenv("SECONDARY_CHANNEL_ID"))  # For detailed info
+PRIMARY_CHANNEL_ID                        = [int(os.getenv("PRIMARY_CHANNEL_ID"))]  # For the death cause
+SECONDARY_CHANNEL_ID                      = [int(os.getenv("SECONDARY_CHANNEL_ID"))]  # For detailed info
+DISCORD2_PRIMARY_ID                       = [int(os.getenv("DISCORD2_PRIMARY_ID"))]
+DISCORD2_SECONDARY_ID                     = [int(os.getenv("DISCORD2_SECONDARY_ID"))]
 
 
 # Load real-life hours per in-game day from environment
@@ -51,14 +53,14 @@ def check_for_environment_variables(bot_cli)->None:
         log.info("Put your discord bot token in a .env file in the root of this project")
         raise RuntimeError("Missing bot token in environment variables")
 
-    if not PRIMARY_CHANNEL_ID:
+    if PRIMARY_CHANNEL_ID == []:
         log.e("PRIMARY_CHANNEL_ID Environment variable not found")
         log.info("Put your primary channel ID in a .env file in the root of this project; .env is in gitignore because it is private and unique per bot made")
         log.info('Enable Developer Mode in Discord if not done so already and then right click the channel to output to and select context menu option: "Copy Channel ID"')
         log.info('The Project Zomboid Server ".ini" file needs a channel ID as well')
         raise RuntimeError("Channel ID 1 in environment variables")
 
-    if not SECONDARY_CHANNEL_ID:
+    if SECONDARY_CHANNEL_ID == []:
         log.e("SECONDARY_CHANNEL_ID Environment variable not found")
         log.info("Put your secondary channel ID in a .env file in the root of this project; .env is in gitignore because it is private and unique per bot made")
         log.info('Enable Developer Mode in Discord if not done so already and then right click the channel to output to and select context menu option: "Copy Channel ID"')
@@ -224,8 +226,17 @@ def setup_log_to_primary_cord(data:dict, notable_skills:str, bot_cli=bot_cli):
 
 # Monitor the file and send messages
 async def monitor_log_file(file_path):
-    primary_channel   = bot.get_channel(PRIMARY_CHANNEL_ID)
-    secondary_channel = bot.get_channel(SECONDARY_CHANNEL_ID)
+    primary_channel   = []
+    secondary_channel = []
+    primary_channel.append(bot.get_channel(PRIMARY_CHANNEL_ID))
+    secondary_channel.append(bot.get_channel(SECONDARY_CHANNEL_ID))
+    if DISCORD2_PRIMARY is not None:
+        primary_channel.append(bot.get_channel(DISCORD2_PRIMARY))
+
+    if DISCORD2_SECONDARY is not None:
+        primary_channel.append(bot.get_channel(DISCORD2_SECONDARY))
+
+    print("Environment variable exists.")
     while True:
         try:
             log.banner("open file and monitor")
@@ -260,19 +271,19 @@ async def monitor_log_file(file_path):
                             log.debug_message(f"Notable Skills String: {notable_skills}")
                             # Send message to primary channel
                             log.info("Primary try send message")
-                            if primary_channel:
+                            for p_channel in primary_channel:
                                 details=setup_log_to_primary_cord(data, notable_skills)
 
                                 log.debug_message(f"Log Entry: {details}")
 
-                                await primary_channel.send(details)
+                                await p_channel.send(details)
 
                             else:
                                 log.info("Primary Channel DNE?")
 
                             log.debug_message("Handle Second Discord Channel")
                             # Send detailed message to secondary channel
-                            if secondary_channel:
+                            for s_channel in secondary_channel:
                                 details = (
                                     f"**Steam Name:**    {data['steam_name']}\n"
                                     f"**Time of Death:** {data['timestamp']}\n"
@@ -283,7 +294,7 @@ async def monitor_log_file(file_path):
                                 )
                                 log.debug_message(f"Log Entry: {details}")
                                 
-                                await secondary_channel.send(details)
+                                await s_channel.send(details)
 
                             else:
                                 log.warn("Secondary Channel DNE?")
@@ -291,7 +302,7 @@ async def monitor_log_file(file_path):
                         else:
                             log.info("Death not found")
 
-                        await asyncio.sleep(5)  # sleep 5 seconds after successful run
+                        await asyncio.sleep(2)  # sleep 5 seconds after successful run
 
         except FileNotFoundError:
             log.warn(f"Log file not found: {file_path}. Retrying...")
