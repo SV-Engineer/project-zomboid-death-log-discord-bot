@@ -283,7 +283,7 @@ async def monitor_log_file(file_path):
                             log.debug_message("Handle Second Discord Channel")
                             # Send detailed message to secondary channel
                             for s_channel in secondary_channel:
-                                __channel = bot.get_channel(p_channel)
+                                __channel = bot.get_channel(s_channel)
                                 details = (
                                     f"**Steam Name:**    {data['steam_name']}\n"
                                     f"**Time of Death:** {data['timestamp']}\n"
