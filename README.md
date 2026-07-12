@@ -1,64 +1,54 @@
 
 # Project Zomboid Discord Bot
-
-  
-
-This bot monitors a log file from a Project Zomboid server and posts relevant information to two Discord channels. The bot is designed to notify about player deaths, with one channel receiving the death cause and another receiving detailed player information.
+This bot monitors a log file from a Project Zomboid server and posts relevant information to two Discord channels. The bot is designed to notify about player deaths, with one channel receiving the death cause and another receiving detailed debug information.
 
 ## Features
-
-- Posts the cause of death to a primary Discord channel.
-
-- Posts detailed player information (Steam name, position, traits, skills, inventory) to a secondary Discord channel.
-
-- Continuously monitors the server's log file for new entries.
+* Posts the cause of death to a primary Discord channel.
+* Posts detailed player information (Steam name, position, traits, skills, inventory) to a secondary Discord channel.
+* Continuously monitors the server's log file for new entries.
 
 ## Requirements
-
-- [Advanced Death Log mod](https://steamcommunity.com/sharedfiles/filedetails/?id=3298519559)
-- Python 3.8+
-- `discord.py` library
-- `python-dotenv` library
-- A discord bot that you have registered and have the token for
+* [Advanced Death Log mod](https://steamcommunity.com/sharedfiles/filedetails/?id=3298519559)
+* Python 3.8+
+* `discord.py` library
+* `python-dotenv` library
+* A discord bot that you have registered and have the token for
 
 ### Adding Advanced Death Log Mod To Your Zomboid Server
 It seems users don't need to subscribe to the mod, it just needs to be on your server.
-    1. After running `start-server.sh -servername <YOUR_SERVER_NAME_HERE>` once, use `ctrl + c` to stop it.
-    2. You should now have a directory called `Zomboid` in your home; use `nano ~/Zomboid/Server/<YOUR_SERVER_NAME_HERE>.ini`
-    3. Press `ctrl + w` (assuming nano), type "mods", and press enter.
-    4. Add `AdvancedDeathLog` to the mods list.
+1. After running `start-server.sh -servername <YOUR_SERVER_NAME_HERE>` once, use `ctrl + c` to stop it.
+2. You should now have a directory called `Zomboid` in your home; use `nano ~/Zomboid/Server/<YOUR_SERVER_NAME_HERE>.ini`
+3. Press `ctrl + w` (assuming nano), type "mods", and press enter.
+4. Add `AdvancedDeathLog` to the mods list.
 
 ### Adding This Bot To Your Zomboid Server
-    1. Use `nano ~/Zomboid/Server/<YOUR_SERVER_NAME_HERE>.ini`
-    2. Press `ctrl + w` (assuming nano), type "Discord", and press enter.
-    3. Set: `DiscordEnable=true`
-    4. Set: `DiscordToken=<YOUR_DISCORD_BOT_TOKEN>`
-    5. Set: `DiscordChannel=<NAME_OF_DISCORD_CHANNEL_FOR_IO>`
-        * Name of primary channel referenced in environment variable "PRIMARY_CHANNEL_ID"; see setup environment variables below.
-    6. Set: `DiscordChannelID=<PRIMARY_CHANNEL_ID>`
-        * Same value as primary channel referenced in environment variable "PRIMARY_CHANNEL_ID"; see setup environment variables below.
+1. Use `nano ~/Zomboid/Server/<YOUR_SERVER_NAME_HERE>.ini`
+2. Press `ctrl + w` (assuming nano), type "Discord", and press enter.
+3. Set: `DiscordEnable=true`
+4. Set: `DiscordToken=<YOUR_DISCORD_BOT_TOKEN>`
+5. Set: `DiscordChannel=<NAME_OF_DISCORD_CHANNEL_FOR_IO>`
+    * Name of primary channel referenced in environment variable "PRIMARY_CHANNEL_ID"; see setup environment variables below.
+6. Set: `DiscordChannelID=<PRIMARY_CHANNEL_ID>`
+    * Same value as primary channel referenced in environment variable "PRIMARY_CHANNEL_ID"; see setup environment variables below.
 
 ## Installation
-
-1. **Clone the Repository**:
-
-In your Zomboid directory (typically `/home/username/Zomboid`) clone the repo. It needs to be in here because the bot currently uses a relative path to the logs.
-
+### Clone the Repository<br>
+    - In your Zomboid directory (typically `/home/username/Zomboid`) clone the repo. It needs to be in here because the bot currently uses a relative path to the logs.<br>
 ```bash
 git clone https://github.com/banditowhiskey/project-zomboid-death-log-discord-bot.git
 cd project-zomboid-discord-bot
 ```
 
-2. **Install Dependencies**:
+### Install Dependencies<br>
 ```bash
 pip install -r requirements.txt
 ```
 
-3. **Set Up Environment Variables**:
+### Set Up Environment Variables
 The bot requires the following environment variables:
-- `DISCORD_BOT_TOKEN`: Your bot's token from the Discord Developer Portal.
-- `PRIMARY_CHANNEL_ID`: The ID of the channel for posting death causes. This is usually a public channel for players to see.
-- `SECONDARY_CHANNEL_ID`: The ID of the channel for posting detailed player information. This is typically a restricted channel for admin use only.
+* `DISCORD_BOT_TOKEN`: Your bot's token from the Discord Developer Portal.
+* `PRIMARY_CHANNEL_ID`: The ID of the channel for posting death causes. This is usually a public channel for players to see.
+* `SECONDARY_CHANNEL_ID`: The ID of the channel for posting detailed player information. This is typically a restricted channel for admin use only.
 
 Create a `.env` file in the project directory with your preferred editor. In this example, we'll use nano.
 
@@ -87,8 +77,7 @@ echo 'export SECONDARY_CHANNEL_ID="your_secondary_channel_id"' >> ~/.bashrc
 source ~/.bashrc
 ```
 
-4. **Run the Bot:**
-
+### Run the Bot
 ```bash
 python advanced-death-log-bot.py
 ```
@@ -97,9 +86,9 @@ Depending on your flavor of Linux, you  might need to use a different command li
 
 ## Running the Bot as a Service
 To ensure the bot runs continuously in the background, you can set it up as a `systemd` service.
-1. **Create a Service File:**
+### Create a Service File
 ```bash
-sudo nano /etc/systemd/system/project-zomboid-bot.service
+sudo nano /etc/systemd/system/zomboid-bot.service
 ```
 Add the following content:
 ```ini
@@ -119,13 +108,13 @@ Restart=always
 [Install]
 WantedBy=multi-user.target
 ```
-2. **Start and Enable the Service:**
+### Start and Enable the Service
 ```bash
 sudo systemctl daemon-reload
 sudo systemctl start project-zomboid-bot
 sudo systemctl enable project-zomboid-bot
 ```
-3. **Check the Service Status**
+### Check the Service Status
 ```bash
 sudo systemctl status project-zomboid-bot
 ```
@@ -134,7 +123,7 @@ Once again, be sure to update the values with what makes sense for your installa
 
 ## Changelog
 ### 1.1.0
-- Traits and Skills now display in alphabetical order
+* Traits and Skills now display in alphabetical order
 
 ## Contributing
 

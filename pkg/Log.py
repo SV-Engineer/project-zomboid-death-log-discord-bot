@@ -38,7 +38,7 @@ class Log:
         TBH I was trying something new here.
 
         '''
-        print(f"{msg_dict["msg_type"]}  --  {msg_dict["message"]}")
+        print(f"{msg_dict['msg_type']}  --  {msg_dict['message']}")
 
     def info(self, message:str)->None:
         r''' @fn def info(self, message:str)

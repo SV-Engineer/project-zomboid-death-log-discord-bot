@@ -53,7 +53,6 @@ class ZomboidBotCLI(Log):
         parser = argparse.ArgumentParser()
         # -<single character option> and --<multi-character option> are aliased, either works when passing to the script from CLI.
         # The multi-character option must be used to access the value
-        parser.add_argument('-n', '--number_of_channels',   type=int,  default=self.arg_defaults["number_of_channels"],   required=False, help="Number of Discord channels to use")
         parser.add_argument('-p', '--path_to_lua_log_file', type=str,  default=self.arg_defaults["path_to_lua_log_file"], required=False, help="Path to the LUA log file. Absolute or relative; default is accesses it from the Zomboid directory that acts as your server info root")
         parser.add_argument('-c', '--character_names',      type=bool, default=self.arg_defaults["character_names"],      required=False,  help="Include Character Names in Discord output")
         parser.add_argument('-o', '--only_character_names', type=bool, default=self.arg_defaults["only_character_names"], required=False,  help="Show Only character Names in Discord output; !!! Overrides option -c")

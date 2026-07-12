@@ -1,3 +1,4 @@
+#! /usr/bin/python3
 import os
 import time
 import asyncio
@@ -44,8 +45,7 @@ def check_for_environment_variables(bot_cli)->None:
     Ensures the environment variables exist.
     '''
     # I reworked this a bit to help myself debug the changes to add the CLI arguments. The intent of the CLI arguments addition is to maintain 
-    # legacy functionality while also enabling easier configuration for the use case of the user. The goal is to make it so configurable that
-    # future users need not modify the code.
+    # legacy functionality while also enabling easier configuration for the use case of the user in combination with the dotenv variables.
     if not DISCORD_TOKEN: 
         log.e("DISCORD_BOT_TOKEN Environment variable not found")
         log.info("Put your discord bot token in a .env file in the root of this project")
@@ -58,7 +58,7 @@ def check_for_environment_variables(bot_cli)->None:
         log.info('The Project Zomboid Server ".ini" file needs a channel ID as well')
         raise RuntimeError("Channel ID 1 in environment variables")
 
-    if bot_cli.args.number_of_channels == 2 and not SECONDARY_CHANNEL_ID:
+    if not SECONDARY_CHANNEL_ID:
         log.e("SECONDARY_CHANNEL_ID Environment variable not found")
         log.info("Put your secondary channel ID in a .env file in the root of this project; .env is in gitignore because it is private and unique per bot made")
         log.info('Enable Developer Mode in Discord if not done so already and then right click the channel to output to and select context menu option: "Copy Channel ID"')
@@ -224,6 +224,8 @@ def setup_log_to_primary_cord(data:dict, notable_skills:str, bot_cli=bot_cli):
 
 # Monitor the file and send messages
 async def monitor_log_file(file_path):
+    primary_channel   = bot.get_channel(PRIMARY_CHANNEL_ID)
+    secondary_channel = bot.get_channel(SECONDARY_CHANNEL_ID)
     while True:
         try:
             log.banner("open file and monitor")
@@ -238,65 +240,58 @@ async def monitor_log_file(file_path):
                     if not line:
                         log.debug_message("...going back to sleep")
                         await asyncio.sleep(2)  # Wait for new log entries, check every 2 seconds
-                        continue
 
-                    # When a new entry is added, parse it and send messages
-                    if "Death," in line:
-                        log.info("Found Death")
-                        log_entry = line + "".join([file.readline() for _ in range(15)])  # Read full log block
-                        data, highest_skill_levels = parse_log_entry(log_entry)
-                        notable_skills = ""
-                        tmp_skill      = ""
+                    else:
+                        # When a new entry is added, parse it and send messages
+                        if "Death," in line:
+                            log.info("Found Death")
+                            log_entry = line + "".join([file.readline() for _ in range(15)])  # Read full log block
+                            data, highest_skill_levels = parse_log_entry(log_entry)
+                            notable_skills = ""
+                            tmp_skill      = ""
 
-                        for skill in highest_skill_levels:
-                            for key in skill:
-                                tmp_key        = f"{key}".ljust(10)
-                                notable_skills = f"{notable_skills}\n> {tmp_key}  --  {skill[key]}"
+                            for skill in highest_skill_levels:
+                                for key in skill:
+                                    tmp_key        = f"{key}".ljust(10)
+                                    notable_skills = f"{notable_skills}\n> {tmp_key}  --  {skill[key]}"
 
-                        notable_skills = f"{notable_skills}\n"
+                            notable_skills = f"{notable_skills}\n"
 
-                        log.debug_message(f"Notable Skills String: {notable_skills}")
-                        # Send message to primary channel
-                        log.info("try send message")
-                        primary_channel = bot.get_channel(PRIMARY_CHANNEL_ID)
-                        if primary_channel:
-                            details=setup_log_to_primary_cord(data, notable_skills)
+                            log.debug_message(f"Notable Skills String: {notable_skills}")
+                            # Send message to primary channel
+                            log.info("Primary try send message")
+                            if primary_channel:
+                                details=setup_log_to_primary_cord(data, notable_skills)
 
-                            log.debug_message(f"Log Entry: {details}")
+                                log.debug_message(f"Log Entry: {details}")
 
-                            # if not "test_mode" in bot_cli.args:
-                            await primary_channel.send(details)
+                                await primary_channel.send(details)
 
-                        else:
-                            log.info("Primary Channel DNE?")
+                            else:
+                                log.info("Primary Channel DNE?")
 
-                        # Do a check here to see if the user wants this information or not.
-                        if bot_cli.args.number_of_channels == CLI_ARG_DEFAULTS["number_of_channels"]:
-                            log.debug_message("Second Discord Channel in use")
+                            log.debug_message("Handle Second Discord Channel")
                             # Send detailed message to secondary channel
-                            secondary_channel = bot.get_channel(SECONDARY_CHANNEL_ID)
                             if secondary_channel:
                                 details = (
-                                    f"**Steam Name:** {data['steam_name']}\n"
+                                    f"**Steam Name:**    {data['steam_name']}\n"
                                     f"**Time of Death:** {data['timestamp']}\n"
-                                    f"**Position:** {data['position']}\n"
-                                    f"**Traits:** {data['traits']}\n"
-                                    f"**Skills:** {data['skills']}\n"
+                                    f"**Position:**      {data['position']}\n"
+                                    f"**Traits:**        {data['traits']}\n"
+                                    f"**Skills:**        {data['skills']}\n"
                                     # f"**Inventory:** {data['inventory']}"
                                 )
                                 log.debug_message(f"Log Entry: {details}")
                                 
-                                # if not "test_mode" in bot_cli.args:
                                 await secondary_channel.send(details)
 
                             else:
                                 log.warn("Secondary Channel DNE?")
 
                         else:
-                            log.debug_message("Second discord Channel NOT in use")
+                            log.info("Death not found")
 
-                    else:
-                        log.info("Death not found")
+                        await asyncio.sleep(5)  # sleep 5 seconds after successful run
 
         except FileNotFoundError:
             log.warn(f"Log file not found: {file_path}. Retrying...")
