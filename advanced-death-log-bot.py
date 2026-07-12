@@ -26,8 +26,8 @@ from Log import Log
 DISCORD_TOKEN                             = os.getenv("DISCORD_BOT_TOKEN")
 PRIMARY_CHANNEL_ID                        = [int(os.getenv("PRIMARY_CHANNEL_ID"))]  # For the death cause
 SECONDARY_CHANNEL_ID                      = [int(os.getenv("SECONDARY_CHANNEL_ID"))]  # For detailed info
-DISCORD2_PRIMARY_ID                       = [int(os.getenv("DISCORD2_PRIMARY_ID"))]
-DISCORD2_SECONDARY_ID                     = [int(os.getenv("DISCORD2_SECONDARY_ID"))]
+DISCORD2_PRIMARY_ID                       = [int(os.getenv("DISCORD2_PRIMARY"))]
+DISCORD2_SECONDARY_ID                     = [int(os.getenv("DISCORD2_SECONDARY"))]
 
 
 # Load real-life hours per in-game day from environment
