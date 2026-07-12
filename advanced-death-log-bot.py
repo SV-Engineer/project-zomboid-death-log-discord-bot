@@ -49,19 +49,19 @@ def check_for_environment_variables(bot_cli)->None:
     # I reworked this a bit to help myself debug the changes to add the CLI arguments. The intent of the CLI arguments addition is to maintain 
     # legacy functionality while also enabling easier configuration for the use case of the user in combination with the dotenv variables.
     if not DISCORD_TOKEN: 
-        log.e("DISCORD_BOT_TOKEN Environment variable not found")
+        log.err("DISCORD_BOT_TOKEN Environment variable not found")
         log.info("Put your discord bot token in a .env file in the root of this project")
         raise RuntimeError("Missing bot token in environment variables")
 
     if PRIMARY_CHANNEL_ID:
-        log.e("PRIMARY_CHANNEL_ID Environment variable not found")
+        log.err("PRIMARY_CHANNEL_ID Environment variable not found")
         log.info("Put your primary channel ID in a .env file in the root of this project; .env is in gitignore because it is private and unique per bot made")
         log.info('Enable Developer Mode in Discord if not done so already and then right click the channel to output to and select context menu option: "Copy Channel ID"')
         log.info('The Project Zomboid Server ".ini" file needs a channel ID as well')
         raise RuntimeError("Channel ID 1 in environment variables")
 
     if SECONDARY_CHANNEL_ID:
-        log.e("SECONDARY_CHANNEL_ID Environment variable not found")
+        log.err("SECONDARY_CHANNEL_ID Environment variable not found")
         log.info("Put your secondary channel ID in a .env file in the root of this project; .env is in gitignore because it is private and unique per bot made")
         log.info('Enable Developer Mode in Discord if not done so already and then right click the channel to output to and select context menu option: "Copy Channel ID"')
         raise RuntimeError("Channel ID 2 in environment variables")
@@ -310,7 +310,7 @@ async def monitor_log_file(file_path):
             await asyncio.sleep(5)  # Wait before retrying
 
         except Exception as e:
-            log.err(f"Error while monitoring log file: {e}")
+            log.errrr(f"Error while monitoring log file: {e}")
             await asyncio.sleep(5)  # Pause before retrying
 
 @bot.event
